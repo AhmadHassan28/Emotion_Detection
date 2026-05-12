@@ -9,6 +9,12 @@ interface EmotionResultProps {
 }
 
 export const EmotionResult: React.FC<EmotionResultProps> = ({ result }) => {
+  const particles = [
+    { initialX: -150, animateX: 50 },
+    { initialX: 100, animateX: -100 },
+    { initialX: -50, animateX: 150 },
+  ];
+
   if (!result) return null;
 
   const emoji = getEmotionEmoji(result.emotion);
@@ -18,11 +24,17 @@ export const EmotionResult: React.FC<EmotionResultProps> = ({ result }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      initial={{ opacity: 0, scale: 0.8, y: 40 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9, y: 20 }}
-      transition={{ duration: 0.5 }}
-      className="w-full max-w-2xl mx-auto"
+      exit={{ opacity: 0, scale: 0.8, y: 40 }}
+      transition={{ type: "spring", bounce: 0.5, duration: 0.8 }}
+      whileHover={{ 
+        scale: 1.02,
+        rotateX: 2,
+        rotateY: -2,
+        transition: { type: "spring", stiffness: 300, damping: 20 }
+      }}
+      className="w-full max-w-2xl mx-auto perspective-1000"
     >
       <div className="glass-card backdrop-blur-xl border-2 border-cyan-400/30">
         {/* Animated Emoji */}
@@ -105,16 +117,16 @@ export const EmotionResult: React.FC<EmotionResultProps> = ({ result }) => {
 
       {/* Floating particles effect */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(3)].map((_, i) => (
+        {particles.map((particle, i) => (
           <motion.div
             key={i}
             initial={{
-              x: Math.random() * 400 - 200,
+              x: particle.initialX,
               y: 0,
               opacity: 0,
             }}
             animate={{
-              x: Math.random() * 400 - 200,
+              x: particle.animateX,
               y: 50,
               opacity: [0, 1, 0],
             }}

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🧠 EmotionSense - AI-Powered Emotion Detection App
 
 A beautiful, modern React web application that detects emotions from text using advanced AI. Built with cutting-edge technologies including Framer Motion animations, glassmorphism design, and a stunning UI.
@@ -239,29 +238,3 @@ For issues or questions, please create an issue in the repository.
 ---
 
 **Made with ❤️ using React, Framer Motion, and Tailwind CSS**
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-=======
-
->>>>>>> 865a43a6b389d9bb9ffb8a3121382ff59992fe63

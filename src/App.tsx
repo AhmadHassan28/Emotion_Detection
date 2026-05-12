@@ -16,7 +16,21 @@ function App() {
   const [isDark, setIsDark] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [currentResult, setCurrentResult] = useState<EmotionResultType | null>(null);
-  const [history, setHistory] = useState<EmotionHistoryItem[]>([]);
+  const [history, setHistory] = useState<EmotionHistoryItem[]>(() => {
+    const savedHistory = localStorage.getItem('emotionHistory');
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        return parsed.map((item: EmotionHistoryItem) => ({
+          ...item,
+          timestamp: new Date(item.timestamp),
+        }));
+      } catch (error) {
+        console.error('Failed to load history:', error);
+      }
+    }
+    return [];
+  });
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Mouse spotlight effect
@@ -33,24 +47,6 @@ function App() {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Load history from localStorage on mount
-  useEffect(() => {
-    const savedHistory = localStorage.getItem('emotionHistory');
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory);
-        setHistory(
-          parsed.map((item: any) => ({
-            ...item,
-            timestamp: new Date(item.timestamp),
-          }))
-        );
-      } catch (error) {
-        console.error('Failed to load history:', error);
-      }
-    }
   }, []);
 
   // Save history to localStorage whenever it changes
@@ -106,38 +102,8 @@ function App() {
       {/* Dynamic Mouse Spotlight */}
       <div className="fixed inset-0 pointer-events-none spotlight" />
 
-      {/* Animated Background Orbs */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            x: [0, 100, -50, 0],
-            y: [0, 50, 100, 0],
-            scale: [1, 1.2, 0.9, 1],
-            rotate: [0, 90, 180, 360]
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-cyan-500/10 rounded-full blur-[120px]"
-        />
-        <motion.div
-          animate={{
-            x: [0, -150, 100, 0],
-            y: [0, 100, -50, 0],
-            scale: [1, 1.1, 1.3, 1],
-            rotate: [360, 270, 180, 0]
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-purple-500/10 rounded-full blur-[120px]"
-        />
-        <motion.div
-          animate={{
-            x: [0, 200, -100, 0],
-            y: [0, -150, 100, 0],
-            scale: [1, 1.3, 0.8, 1]
-          }}
-          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[20%] left-[30%] w-[40vw] h-[40vw] bg-rose-500/10 rounded-full blur-[120px]"
-        />
-      </div>
+      {/* Aurora Mesh Background */}
+      <div className="aurora-bg" />
 
       {/* Content Wrapper */}
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-5xl">
