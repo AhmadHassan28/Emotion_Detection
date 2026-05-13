@@ -3,8 +3,39 @@ import keywordsData from './emotion_keywords.json';
 
 const emotionKeywords: Record<Emotion, string[]> = keywordsData.topKeywords as Record<Emotion, string[]>;
 
-// Words that appear in too many categories and dilute the signal
-const SIGNAL_BLACKLIST = new Set(['name', 'his', 'her', 'were', 'was', 'been', 'being', 'having', 'these', 'those', 'that', 'this', 'our', 'ive', 'hes', 'shes']);
+// Words that appear in too many categories and dilute the signal.
+// Expanded to cover very common filler/context words.
+const SIGNAL_BLACKLIST = new Set([
+  'name', 'his', 'her', 'were', 'was', 'been', 'being', 'having',
+  'these', 'those', 'that', 'this', 'our', 'ive', 'hes', 'shes',
+  'today', 'tomorrow', 'yesterday', 'feel', 'am', 'are', 'the',
+  'got', 'back', 'off', 'over', 'down', 'into', 'same', 'still',
+  'man', 'guy', 'dude', 'post', 'game', 'sub', 'comment', 'year', 'years',
+  'going', 'getting', 'find', 'sure', 'just', 'also', 'even', 'now'
+]);
+
+// Direct high-confidence keyword → emotion map.
+// These unambiguous words override keyword scoring if they appear in the text.
+const DIRECT_KEYWORDS: Partial<Record<string, Emotion>> = {
+  sad: 'sadness', unhappy: 'sadness', depressed: 'sadness', miserable: 'sadness',
+  crying: 'sadness', heartbroken: 'sadness', hopeless: 'sadness', lonely: 'sadness',
+  angry: 'anger', furious: 'anger', rage: 'anger', outraged: 'anger', hate: 'anger',
+  happy: 'joy', joyful: 'joy', delighted: 'joy', elated: 'joy', cheerful: 'joy',
+  excited: 'excitement', thrilled: 'excitement', ecstatic: 'excitement',
+  scared: 'fear', afraid: 'fear', terrified: 'fear', anxious: 'nervousness',
+  disgusted: 'disgust', gross: 'disgust', revolting: 'disgust',
+  surprised: 'surprise', shocked: 'surprise', astonished: 'surprise',
+  grateful: 'gratitude', thankful: 'gratitude', appreciate: 'gratitude',
+  proud: 'pride', accomplished: 'pride',
+  embarrassed: 'embarrassment', ashamed: 'embarrassment',
+  confused: 'confusion', puzzled: 'confusion', baffled: 'confusion',
+  curious: 'curiosity', intrigued: 'curiosity', wondering: 'curiosity',
+  sorry: 'remorse', regret: 'remorse', guilty: 'remorse',
+  love: 'love', adore: 'love', cherish: 'love',
+  hopeful: 'optimism', optimistic: 'optimism',
+  relieved: 'relief', relief: 'relief',
+  grief: 'grief', mourning: 'grief', grieving: 'grief',
+};
 
 export const detectEmotion = (text: string): EmotionResult => {
   const lowerText = text.toLowerCase();
@@ -48,6 +79,20 @@ export const detectEmotion = (text: string): EmotionResult => {
       return;
     }
 
+    // 4. Check Direct High-Confidence Keywords FIRST (strong +3 boost)
+    const directEmotion = DIRECT_KEYWORDS[word];
+    if (directEmotion) {
+      const isNegated = lastNegationIndex !== -1 && (index - lastNegationIndex <= 3);
+      if (isNegated) {
+        emotionScores[directEmotion] -= currentIntensity * 3;
+      } else {
+        emotionScores[directEmotion] += currentIntensity * 3;
+      }
+      currentIntensity = 1;
+      return; // Skip the general keyword loop for this word
+    }
+
+    // 5. General Keyword Scoring (from JSON file)
     let foundMatch = false;
     for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
       if (!keywords) continue;
@@ -64,7 +109,6 @@ export const detectEmotion = (text: string): EmotionResult => {
         
         if (isNegated) {
           emotionScores[emotion as Emotion] -= currentIntensity * 1.5;
-          // Don't reset lastNegationIndex yet, it might affect the next word too
         } else {
           emotionScores[emotion as Emotion] += currentIntensity;
         }
