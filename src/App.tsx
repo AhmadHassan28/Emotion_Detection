@@ -32,6 +32,15 @@ function App() {
     }
     return [];
   });
+  const [particles] = useState(() => {
+    return [...Array(25)].map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 10 + 15,
+      delay: Math.random() * 5,
+    }));
+  });
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Mouse spotlight effect
@@ -105,6 +114,33 @@ function App() {
 
       {/* Aurora Mesh Background */}
       <div className="aurora-bg" />
+
+      {/* Floating Particles */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {particles.map((p, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-cyan-200"
+            style={{
+              left: `${p.x}vw`,
+              top: `${p.y}vh`,
+              width: p.size,
+              height: p.size,
+            }}
+            animate={{
+              y: [0, -150],
+              opacity: [0, 0.6, 0],
+              scale: [1, 1.5, 0.8],
+            }}
+            transition={{
+              duration: p.duration,
+              delay: p.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
 
       {/* Content Wrapper */}
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-5xl">
