@@ -5,21 +5,16 @@ export const CursorTrail: React.FC = () => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
 
-  // Fast spring for the outer ring
-  const springConfigRing = { damping: 25, stiffness: 400, mass: 0.5 };
-  const cursorXSpringRing = useSpring(cursorX, springConfigRing);
-  const cursorYSpringRing = useSpring(cursorY, springConfigRing);
-
-  // Slower, highly damped spring for the glowing trailing core
-  const springConfigCore = { damping: 40, stiffness: 200, mass: 0.8 };
-  const cursorXSpringCore = useSpring(cursorX, springConfigCore);
-  const cursorYSpringCore = useSpring(cursorY, springConfigCore);
+  // Ultra-responsive, smooth spring for a tight follow
+  const springConfig = { damping: 25, stiffness: 500, mass: 0.1 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
-      // Offset by half the width/height to center on the mouse
-      cursorX.set(e.clientX - 16);
-      cursorY.set(e.clientY - 16);
+      // Offset by half the width/height (32px) to center on the mouse
+      cursorX.set(e.clientX - 32);
+      cursorY.set(e.clientY - 32);
     };
 
     window.addEventListener('mousemove', moveCursor);
@@ -34,23 +29,20 @@ export const CursorTrail: React.FC = () => {
   }
 
   return (
-    <>
-      {/* Outer sharp ring */}
-      <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[100] w-8 h-8 rounded-full border border-aurora-cyan/50"
-        style={{
-          x: cursorXSpringRing,
-          y: cursorYSpringRing,
-        }}
-      />
-      {/* Trailing glowing core */}
-      <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[90] w-8 h-8 rounded-full bg-gradient-to-r from-aurora-fuchsia to-aurora-purple mix-blend-screen blur-[10px] opacity-70"
-        style={{
-          x: cursorXSpringCore,
-          y: cursorYSpringCore,
-        }}
-      />
-    </>
+    <motion.div
+      className="pointer-events-none fixed left-0 top-0 z-[100] w-16 h-16 rounded-full backdrop-blur-md border border-white/10 bg-white/5 shadow-[0_0_30px_rgba(0,242,254,0.15)] mix-blend-screen"
+      style={{
+        x: cursorXSpring,
+        y: cursorYSpring,
+      }}
+      animate={{
+        scale: [1, 1.05, 1],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    />
   );
 };
