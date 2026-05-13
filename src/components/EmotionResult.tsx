@@ -1,3 +1,4 @@
+// Refactored EmotionResult with 3D tilt effects and spring physics.
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { EmotionResult as EmotionResultType } from '../types';

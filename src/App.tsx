@@ -1,3 +1,4 @@
+// Added new theme configurations and layout updates.
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {

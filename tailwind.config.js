@@ -1,3 +1,4 @@
+// Tailwind configuration for EmotionSense Ethereal Aurora theme.
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [

@@ -1,3 +1,4 @@
+<!-- EmotionSense Application Repository -->
 # 🧠 EmotionSense - AI-Powered Emotion Detection App
 
 A beautiful, modern React web application that detects emotions from text using advanced AI. Built with cutting-edge technologies including Framer Motion animations, glassmorphism design, and a stunning UI.

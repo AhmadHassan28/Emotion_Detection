@@ -1,3 +1,4 @@
+// Enhanced input box with typing detection and magnetic hover effects.
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Sparkles } from 'lucide-react';
