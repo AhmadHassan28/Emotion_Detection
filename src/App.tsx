@@ -8,6 +8,7 @@ import {
   Loader,
   EmotionHistory,
   EmotionChart,
+  CursorTrail,
 } from './components';
 import type { EmotionResult as EmotionResultType, EmotionHistoryItem } from './types';
 import { detectEmotion } from './utils/emotionDetector';
@@ -109,6 +110,7 @@ function App() {
         isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
       }`}
     >
+      <CursorTrail />
       {/* Dynamic Mouse Spotlight */}
       <div className="fixed inset-0 pointer-events-none spotlight" />
 
@@ -154,7 +156,7 @@ function App() {
               animate={{ opacity: 1, y: 0 }}
               className="text-5xl md:text-7xl font-extrabold tracking-tighter"
             >
-              Understand Your <span className="gradient-text">Emotions</span>
+              Understand Your <span className="liquid-text">Emotions</span>
             </motion.h2>
             <motion.p 
               initial={{ opacity: 0 }}

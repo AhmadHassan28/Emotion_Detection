@@ -4,3 +4,4 @@ export { EmotionResult } from './EmotionResult';
 export { Loader } from './Loader';
 export { EmotionHistory } from './EmotionHistory';
 export { EmotionChart } from './EmotionChart';
+export { CursorTrail } from './CursorTrail';
