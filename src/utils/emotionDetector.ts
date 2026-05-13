@@ -3,6 +3,9 @@ import keywordsData from './emotion_keywords.json';
 
 const emotionKeywords: Record<Emotion, string[]> = keywordsData.topKeywords as Record<Emotion, string[]>;
 
+// Words that appear in too many categories and dilute the signal
+const SIGNAL_BLACKLIST = new Set(['name', 'his', 'her', 'were', 'was', 'been', 'being', 'having', 'these', 'those', 'that', 'this', 'our', 'ive', 'hes', 'shes']);
+
 export const detectEmotion = (text: string): EmotionResult => {
   const lowerText = text.toLowerCase();
   const words = lowerText.replace(/[^\w\s]/g, ' ').split(/\s+/).filter(w => w.length > 0);
@@ -25,27 +28,43 @@ export const detectEmotion = (text: string): EmotionResult => {
   const negationKeywords = ['not', 'no', 'never', 'neither', "don't", "doesn't", "didn't", "won't", "can't", "isnt", "arent", "wasnt", "werent"];
 
   let currentIntensity = 1;
-  let negationActive = false;
+  let lastNegationIndex = -1;
 
   words.forEach((word, index) => {
+    // 1. Check for Negation
     if (negationKeywords.includes(word)) {
-      negationActive = true;
+      lastNegationIndex = index;
       return;
     }
 
+    // 2. Check for Intensity
     if (intensityKeywords[word]) {
       currentIntensity = intensityKeywords[word];
+      return;
+    }
+
+    // 3. Skip Blacklisted "Noise" Words
+    if (SIGNAL_BLACKLIST.has(word)) {
       return;
     }
 
     let foundMatch = false;
     for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
       if (!keywords) continue;
-      // Exact match or simple plural/ing suffix check
-      if (keywords.includes(word) || keywords.includes(word + 's') || keywords.includes(word.replace(/ing$/, 'e')) || keywords.includes(word.replace(/ing$/, ''))) {
-        if (negationActive && index < 5) {
-          emotionScores[emotion as Emotion] -= currentIntensity * 0.5;
-          negationActive = false;
+      
+      // Stemming check
+      const isMatch = keywords.includes(word) || 
+                      keywords.includes(word + 's') || 
+                      keywords.includes(word.replace(/ing$/, 'e')) || 
+                      keywords.includes(word.replace(/ing$/, ''));
+
+      if (isMatch) {
+        // Apply Negation (window of 3 words)
+        const isNegated = lastNegationIndex !== -1 && (index - lastNegationIndex <= 3);
+        
+        if (isNegated) {
+          emotionScores[emotion as Emotion] -= currentIntensity * 1.5;
+          // Don't reset lastNegationIndex yet, it might affect the next word too
         } else {
           emotionScores[emotion as Emotion] += currentIntensity;
         }
